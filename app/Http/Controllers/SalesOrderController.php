@@ -19,19 +19,32 @@ class SalesOrderController extends Controller
     //
     // show salesorderview which references the inventory
     public function show(Inventory $inventoryData){
+        if (Inventory::first() && InventoryLine::first()){
         $inventoryData = Inventory::first()->filter(request(['search']))->get();
-        $saleData = SalesOrder::select()->get();
-        $cashData = cashpayment::select()->get();
-        $cardData = cardpayment::select()->get();
-        return view('salesorder', ['inventorylist'=>$inventoryData , 'salelist'=>$saleData , 'cashlist'=>$cashData, 'cardlist'=>$cardData]);
-        return view('salesorder', ['inventorylist'=>$inventoryData , 'salelist'=>$saleData , 'cashlist'=>$cashData, 'cardlist'=>$cardData]);
+        $inventorylineData = InventoryLine::first()->filter(request(['search']))->get();
+        
+        return view('salesorder', ['inventorylist'=>$inventoryData , 'inventorylinelist'=>$inventorylineData]);}
+        else return view('salesorder', ['inventorylist'=>Inventory::first(), 'inventorylinelist' => InventoryLine::first()]);;
+        //return view('salesorder', ['inventorylist'=>$inventoryData , 'salelist'=>$saleData , 'cashlist'=>$cashData, 'cardlist'=>$cardData]);
     }
 
     public function showHistory(Inventory $inventoryData){
         $saleData = SalesOrder::select()->get();
         $cashData = cashpayment::select()->get();
         $cardData = cardpayment::select()->get();
-        return view('saleshistory', ['salelist'=>$saleData , 'cashlist'=>$cashData, 'cardlist'=>$cardData]);
+        //$cardData = cardpayment::select()->get();
+        return view('saleshistory', ['salelist'=>$saleData , 'cashlist'=>$cashData, 'cardlist'=>$cardData, 'ordercontentlist'=>null]);
+    }
+    
+    public function showContents(SalesOrder $sales){
+        //dd("a");
+        $saleData = SalesOrder::select()->get();
+        $cashData = cashpayment::select()->get();
+        $cardData = cardpayment::select()->get();
+        //dd($sales->id);
+        $contentData = ordercontents::where('order_id',$sales->id)->get();
+        
+        return view('saleshistory', ['salelist'=>$saleData , 'cashlist'=>$cashData, 'cardlist'=>$cardData, 'ordercontentlist'=>$contentData]);
     }
     
     //store item salesorder data
@@ -39,7 +52,8 @@ class SalesOrderController extends Controller
         $formFields = $request->validate([
             'order_total' =>'required',
             'order_discount' => '',
-            'order_senior_discount' => ''
+            'order_senior_discount' => '',
+            'date_today' => ''
         ]);
 
         $ordered = SalesOrder::create($formFields);
@@ -49,33 +63,18 @@ class SalesOrderController extends Controller
        
         if($input['cardmode']) $this->storeCard($request, $orderedid);
         else $this->storeCash($request, $orderedid);
-        
+        $this->storeOrderContents($request, $orderedid);
         return redirect('/salesorder')->with('message', 'A sale was made successfully.');
     }
     
-    //update inventory when a sale is made
-     /*public function updateInventory(Request $request){
-         $input = $request->all();
-         $i = 0;
-         $count = count($input['barcode']);
-         while($i < $count){
-             Inventory::where('item_barcode',$input['barcode'][$i])->update(array('item_quantity'=>$input['oldquantity'][$i] - $input['quantity'][$i])); //search inventory for matching barcode, then update the quantity entry.
-             $i++;
-         }
-         /*$count = $input['quantity'];
-         dd($count);
-         $this->store($request);
-         
-        return redirect('/salesorder');
-    }*/
-    
+
     public function updateInventory(Request $request){ //this version of updateInventory will go to InventoryLine instead of Inventory now
          $input = $request->all();
          $i = 0;
          $count = count($input['idd']);
          while($i < $count){
              InventoryLine::where('inventory_id',$input['idd'][$i])->update(array(
-                 'inventoryline_quantity'=>$input['oldquantity'][$i] - $input['quantity'][$i])); //search inventory for matching barcode, then update the quantity entry.
+                 'inventoryline_quantity'=>$input['oldquantity'][$i] - $input['quantity'][$i])); //search inventoryline for matching item ID, then update the quantity entry.
              $i++;
          }
          $this->store($request); //command to store SalesOrder data
@@ -87,19 +86,27 @@ class SalesOrderController extends Controller
     public function storeCard(Request $request, $orderid){
         $inventoryData = Inventory::first()->filter(request(['search']))->get();
         $input = $request->all();
-        CardPayment::create(array('order_id' =>$orderid, 'card_number'=>$input['cardnumber'], 'card_type'=>$input['cardtype'], 'cardpayment_amount' => $input['amount_paid'],));
+        CardPayment::create(array('order_id' =>$orderid, 'card_number'=>$input['cardnumber'], 'card_type'=>$input['cardtype'], 'cardpayment_amount' => $input['amount_paid'], 'date_today' => $input['date_today']));
     }
     
     //store info of payment with cash
     public function storeCash(Request $request, $orderid){
         $inventoryData = Inventory::first()->filter(request(['search']))->get();
         $input = $request->all();
-        CashPayment::create(array('order_id' =>$orderid, 'cashpayment_amount' => $input['amount_paid']));
+        CashPayment::create(array('order_id' =>$orderid, 'cashpayment_amount' => $input['amount_paid'], 'date_today' => $input['date_today']));
     }
      public function storeOrderContents(Request $request, $orderid){
-        $inventoryData = Inventory::first()->filter(request(['search']))->get();
         $input = $request->all();
-        ordercontents::create(array('order_id' =>$orderid, 'cashpayment_amount' => $input['amount_paid']));
+         $i = 0;
+         $count = count($input['idd']);
+         
+         while($i < $count){
+             $itemname = Inventory::where('item_barcode', $input['barcode'][$i])->first()->item_name;
+             ordercontents::create(array('order_id' =>$orderid, 'item_name' => $itemname, 'inventoryline_quantity' => $input['quantity'][$i], 'item_price' =>$input['price'][$i], 'item_discount'=>$input['discount'][$i]));
+
+             $i++;
+         }
+        
      
      }
     //delete an entry

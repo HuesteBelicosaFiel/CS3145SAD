@@ -60,10 +60,10 @@
                 class="border border-gray-200 rounded p-2 w-full"
                 name="inventoryline_quantity"
                 placeholder="Example: 1,2,3,4,5"
-                value="{{old('item_quantity')}}"
+                value="{{old('inventoryline_quantity')}}"
             />
     
-            @error('item_quantity')
+            @error('inventoryline_quantity')
             <p class="text-red-500 text-xs mt-1">{{$message}}</p>
             @enderror
     

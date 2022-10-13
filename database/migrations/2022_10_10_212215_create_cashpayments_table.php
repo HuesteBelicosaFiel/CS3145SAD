@@ -20,6 +20,7 @@ return new class extends Migration
             
             $table->id("cashpayment_id");
             $table->double('cashpayment_amount');
+            $table->string('date_today');
             $table->timestamps();
         });
     }

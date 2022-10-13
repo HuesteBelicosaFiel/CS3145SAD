@@ -14,17 +14,17 @@ class InventoryController extends Controller
     // show inventory
     public function show(Inventory $inventoryData){
         if (Inventory::first() && InventoryLine::first()){
-        $inventoryData = Inventory::first()->filter(request(['search']))->get();
-       
-        $inventoryLineData = InventoryLine::first()->filter(request(['search']))->get();
-
-        $inventoryData = Inventory::paginate(5);
         
+        /*$inventoryData = Inventory::first()->filter(request(['search']))->paginate(5);
+        $inventoryLineData = InventoryLine::first()->filter(request(['search']))->paginate(5);*/
+        $inventoryData = Inventory::first()->filter(request(['search']))->get();
+        $inventoryLineData = InventoryLine::first()->filter(request(['search']))->get();    
+            
+
         return view('inventory', ['inventorylist'=>$inventoryData, 'inventorylinelist' =>$inventoryLineData]);
         }
        else return view('inventory', ['inventorylist'=>Inventory::first(), 'inventorylinelist' => InventoryLine::first()]);
 
-       
     }
 
     // show procurement
@@ -113,6 +113,8 @@ class InventoryController extends Controller
 
     //delete item
     public function destroy(Inventory $inventory){
+        $invid = $inventory->id;
+        InventoryLine::where('inventoryline_id', $invid)->delete();
         $inventory->delete();
         return redirect('/inventory')->with('message', 'An item was deleted successfully.');
     }

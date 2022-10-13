@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SalesOrder;
 use App\Models\Inventory;
-
+use App\Models\InventoryLine;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -16,8 +16,9 @@ class SalesOrderController extends Controller
     // show salesorderview which references the inventory
     public function show(Inventory $inventoryData){
         $inventoryData = Inventory::first()->filter(request(['search']))->get();
+        $inventorylineData = InventoryLine::first()->filter(request(['search']))->get();
         $saleData = SalesOrder::select()->get();
-        return view('salesorder', ['inventorylist'=>$inventoryData , 'salelist'=>$saleData]);
+        return view('salesorder', ['inventorylist'=>$inventoryData , 'inventorylinelist'=>$inventorylineData, 'salelist'=>$saleData]);
         
     }
 
@@ -70,7 +71,7 @@ class SalesOrderController extends Controller
          $count = count($input['barcode']);
          while($i < $count){
              
-             Inventory::where('item_barcode',$input['barcode'][$i])->update(array('item_quantity'=>$input['oldquantity'][$i] - $input['quantity'][$i]));
+             InventoryLine::where('item_barcode',$input['barcode'][$i])->update(array('inventoryline_quantity'=>$input['oldquantity'][$i] - $input['quantity'][$i]));
              $i++;
          }
          

@@ -17,7 +17,8 @@ return new class extends Migration
             $table->id();
             $table->double('order_total');
             $table->double('order_discount');
-            $table->double('order_senior_discount'); 
+            $table->double('order_senior_discount');
+            $table->string('date_today');
             $table->timestamps();
         });
     }

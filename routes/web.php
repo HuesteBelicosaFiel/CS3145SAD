@@ -66,10 +66,20 @@ Route::delete('inventory/{inventory}', [InventoryController::class, 'destroy'])-
 //show inventory
 Route::get('inventory', [InventoryController::class, 'show'])->middleware('auth');
 
+// Purchase Order form
+Route::get('purchaseorder/{supplier}', [SupplierController::class, 'showPurchase'])->middleware('auth');
 
-//show procurement
-Route::get('procurement', [InventoryController::class, 'show1'])->middleware('auth');
+// Store Purchase Order
+Route::post('purchaseorder', [SupplierController::class, 'storePurchase'])->middleware('auth');
 
+//show procurement Purchase Orders
+Route::get('procurement', [SupplierController::class, 'showPurchaseList'])->middleware('auth');
+
+//edit Purchase Order Status
+Route::get('editprocurement/{purchaseorder}', [SupplierController::class, 'editPurchase'])->middleware('auth');
+
+//edit Purchase Order Status
+Route::put('editprocurement/{purchaseorder}', [SupplierController::class, 'updatePurchase'])->middleware('auth');
 
 // Show Employees
 Route::get('employee', [EmployeeController::class, 'show'])->middleware('auth');
@@ -80,6 +90,15 @@ Route::get('createemployee', [EmployeeController::class, 'create'])->middleware(
 // Store Employee Data
 Route::post('employee', [EmployeeController::class, 'store'])->middleware('auth');
 
+// Show Attendance List
+Route::get('showattendance/{employee}', [EmployeeController::class, 'showAttendanceList'])->middleware('auth');
+
+// Show Attendance maker
+Route::get('showattendancecreator/{id}', [EmployeeController::class, 'showAttendanceCreator'])->middleware('auth');
+
+// Store Attendance
+Route::post('attendancecreator', [EmployeeController::class, 'storeAttendance'])->middleware('auth');
+
 // Show Edit Form
 Route::get('editemployee/{employee}', [EmployeeController::class, 'edit'])->middleware('auth');
 
@@ -89,8 +108,6 @@ Route::put('editemployee/{employee}', [EmployeeController::class, 'update'])->mi
 //delete employee
 Route::delete('employee/{employee}', [EmployeeController::class, 'destroy'])->middleware('auth');
 
-// Store Employee Data
-Route::get('employee/attendance', [EmployeeController::class, 'showAttendance'])->middleware('auth');
 
 // Show Register/Create Form
 Route::get('/register', [UserController::class, 'create'])->middleware('guest');
@@ -124,4 +141,9 @@ Route::put('salesorder', [salesOrderController::class, 'updateInventory'])->midd
 //show saleshistory
 Route::get('saleshistory', [SalesOrderController::class, 'showHistory'])->middleware('auth');
 
+//showcontents
+Route::get('contents/{sales}', [SalesOrderController::class, 'showContents'])->middleware('auth');
 
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

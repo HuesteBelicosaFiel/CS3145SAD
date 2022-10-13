@@ -17,13 +17,13 @@ return new class extends Migration
             $table->id();
             $table->string('item_barcode', 13);
             $table->string('item_name');
-            //$table->integer('item_quantity');
+
             $table->string('item_size');
             $table->double('item_price');
             $table->double('item_procprice');
             $table->string('item_description');
             $table->double('item_discount');
-            //$table->date('expire_date');
+
         });
     }
 
@@ -34,6 +34,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('inventory');
+        Schema::dropIfExists('inventories');
     }
 };

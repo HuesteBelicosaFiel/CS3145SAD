@@ -48,6 +48,26 @@
             <p class="text-red-500 text-xs mt-1">{{$message}}</p>
             @enderror
         </div>
+        
+         <div class="mb-6">
+            <label for="password" class="inline-block text-lg mb-2">Password</label>
+            <input type="password" class="border border-gray-200 rounded p-2 w-full"
+                name="password" value=""/>
+    
+            @error('password')
+            <p class="text-red-500 text-xs mt-1">{{$message}}</p>
+            @enderror
+        </div>
+        
+        <div class="mb-6">
+            <label for="password-confirm" class="inline-block text-lg mb-2">Confirm Password</label>
+            <input type="password-confirm" class="border border-gray-200 rounded p-2 w-full"
+                name="password_confirmation"  required autocomplete="new-password"/>
+    
+            @error('password')
+            <p class="text-red-500 text-xs mt-1">{{$message}}</p>
+            @enderror
+        </div>
 
         <div class="mb-6">
             <label for="emp_gender" class="inline-block text-lg mb-2">Gender</label>

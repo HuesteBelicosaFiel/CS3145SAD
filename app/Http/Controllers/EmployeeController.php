@@ -1,46 +1,64 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\User;
 use App\Models\Employee;
+use App\Models\attendance;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class EmployeeController extends Controller
 {
     // // Show all employees
-    // public function index() {
-    //     return view('employee', [
-    //         'employee' => Employee::first()->filter(request(['id', 'search']))->paginate(6)
-    //     ]);
-    // }
+
 
     public function show(Employee $employeeData){
+        $authid = Auth::id(); 
+        if($authid==1){
         if (Employee::first()){
         $employeeData = Employee::first()->filter(request(['search']))->paginate(5);
         return view('employee', ['employeelist'=>$employeeData]);
         }
-        else return view('createemployee');
+        else 
+        {
+            Employee::create(array(
+            'user_id' => 1,
+            'emp_fullName'=>"admin", 
+            'emp_phoneNum'=>"00000000000", 
+            'emp_address' =>"0", 
+            'emp_email' => "a00@gmail.com", 
+            'emp_gender' =>"0", 
+            'emp_birthdate'=>"0", 
+            'emp_role'=>"admin"));
+        $employeeData = Employee::first()->filter(request(['search']))->paginate(5);
+        return view('employee', ['employeelist'=>$employeeData]);}
+        }else abort(403);
     }
     
-    public function showAttendance(Employee $employeeData){
-        /*if (Employee::first()){
-        $employeeData = Employee::first()->filter(request(['search']))->paginate(5);
-        return view('employee', ['employeelist'=>$employeeData]);
-        }
-        else*/ return view('employeeattendance');
+    /*public function showAttendanceCreator(Employee $employee){
+        
+        return view('employeeattendance', ['employee' => $employee]);
+        
+    }*/
+    
+    public function showAttendanceCreator($id){
+        $employee = Employee::where('user_id',$id)->take(1)->first();
+        if($employee)
+        return view('employeeattendance', ['employee' => $employee]);
+        else abort(403);
     }
 
-    // //Show single employee
-    // public function show(Employee $employee) {
-    //     return view('employee', [
-    //         'employee' => $employee
-    //     ]);
-    // }
+    public function showAttendanceList(Employee $employee){
+        $empid = $employee->id;
+        return view('employeeattendancelist', ['employee' => $employee, 'attendances' => attendance::where('emp_id', $empid)->filter(request(['search']))->paginate(10)]);
+    }
 
     // Show Create Form
     public function create() {
+        
         return view('createemployee');
+        
     }
 
     // Store Employee Data
@@ -56,15 +74,47 @@ class EmployeeController extends Controller
         ]);
 
         // $formFields['user_id'] = auth()->id();
-
-        Employee::create($formFields);
-
+        $userid = $this->storeUser($request);
+        Employee::create(array('user_id' => $userid)+$formFields);
+        
         return redirect('/employee')->with('message', 'Employee created successfully!');
+    }
+    
+    public function storeAttendance(Request $request) {
+        $formFields = $request->validate([
+            'emp_id' => 'required',
+            'date_today' =>'required'
+        ]);
+
+        // $formFields['user_id'] = auth()->id();
+
+        attendance::create($formFields);
+     
+        return redirect('/')->with('message', 'Attendance created successfully!');
     }
 
     // Show Edit Form
+    public function storeUser(Request $request) {
+        $formFields = $request->validate([
+            'password' => 'required|confirmed|min:6'
+        ]);
+        //$input=$request
+        // Hash Password
+        $formFields['password'] = bcrypt($formFields['password']);
+
+        // Create User
+        $user = User::create($formFields + array('email' => $request->emp_email, 'name'=>$request->emp_fullName));
+        return ($user->id);
+        // Login
+        //auth()->login($user);
+    }
+    
+    
     public function edit(Employee $employee) {
+        $authid = Auth::id(); 
+        if($authid==1){
         return view('editemployee', ['employee' => $employee]);
+        }else abort(403);
     }
 
     // Update Listing Data
@@ -84,8 +134,13 @@ class EmployeeController extends Controller
             'emp_role' => 'required',
         ]);
 
+        $formFields2 = $request->validate([
+            'password' => 'required|confirmed|min:6'
+        ]);
+        $formFields2['password'] = bcrypt($formFields2['password']);
+        User::where('id',$employee->user_id)->update($formFields2 + array('email' => $request->emp_email, 'name'=>$request->emp_fullName));
         $employee->update($formFields);
-
+        
         //return back()->with('message', 'Employee updated successfully!');
         return redirect('/employee')->with('message', 'An employee was updated successfully.');
     }
@@ -96,7 +151,9 @@ class EmployeeController extends Controller
         // if($listing->user_id != auth()->id()) {
         //     abort(403, 'Unauthorized Action');
         // }
-        
+        $empid = $employee->id;
+        User::where('id',$employee->user_id)->delete();
+        attendance::where('emp_id', $empid)->delete();
         $employee->delete();
         return redirect('/employee')->with('message', 'Employee deleted successfully');
     }

@@ -14,17 +14,12 @@ return new class extends Migration
     public function up()
     {
         Schema::create('inventory_lines', function (Blueprint $table) {
-            
-            
-            
             $table->unsignedBigInteger('inventory_id');
             $table->foreign('inventory_id')->references('id')->on('inventories');
-            
             $table->id('inventoryline_id');
             $table->string('item_barcode', 13);
             $table->string('item_name');
             $table->string('item_size');
-
             $table->integer('inventoryline_quantity');
             $table->integer('inventoryline_restockvalue');
             $table->integer('inventoryline_outofstock');

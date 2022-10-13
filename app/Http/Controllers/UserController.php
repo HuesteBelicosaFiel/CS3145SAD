@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Models\Employee;
 
 class UserController extends Controller
 {
@@ -26,7 +27,15 @@ class UserController extends Controller
 
         // Create User
         $user = User::create($formFields);
-
+        Employee::create(array(
+            'user_id' => $user->id,
+            'emp_fullName'=>"admin", 
+            'emp_phoneNum'=>"00000000000", 
+            'emp_address' =>"0", 
+            'emp_email' => "a00@gmail.com", 
+            'emp_gender' =>"0", 
+            'emp_birthdate'=>"0", 
+            'emp_role'=>"0"));
         // Login
         auth()->login($user);
 

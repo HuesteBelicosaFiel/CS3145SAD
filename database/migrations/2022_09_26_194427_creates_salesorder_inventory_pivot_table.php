@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('inventory_id');
             $table->unsignedBigInteger('salesorder_id');
+            $table->string('date_today');
             $table->timestamps();
         });
     }

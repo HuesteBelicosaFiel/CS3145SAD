@@ -8,6 +8,7 @@
                 <div class="card-header">{{ __('Register') }}</div>
 
                 <div class="card-body">
+                    THIS FORM IS FOR CREATING THE MANAGER'S ACCOUNT - DO NOT LOSE YOUR INFORMATION
                     <form method="POST" action="{{ route('register') }}">
                         @csrf
 

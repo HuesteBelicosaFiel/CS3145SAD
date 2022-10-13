@@ -1,16 +1,16 @@
 <x-layout>
     <section class="relative h-20 flex flex-col justify-center align-center text-center space-y-4 mb-4 text-xl">
-<h1 class="text-lg font-bold align-center">Employee Management</h1>
+<h1 class="text-5xl font-bold align-center">Employee Management</h1>
     </section>
 @include('partials._search')
 
-<a href="/createemployee" class="absolute top-1/5 left-10 bg-black text-white py-2 px-5">Add employee</a>
-<a href="/employee/attendance" class="absolute top-1/5 right-10 bg-black text-white py-2 px-5">Attendance</a>
+<a href="/createemployee" class="absolute top-1/5 left-10 bg-zinc-600 rounded-lg text-white py-2 px-5">Add employee</a>
+
 
 <br/>
 
 
-<section class="flex flex-col justify-center align-center text-center space-y-4 mb-4 ">
+    <div class="flex flex-col justify-center align-center text-center px-1">
     <table class="table-auto m-8">
         <tr class="font-bold text-center">
         
@@ -26,6 +26,7 @@
         <td class="border-2 border-black"></td>
         
     </tr>
+    @if($employeelist)
     @foreach ($employeelist as $employee)
     @csrf
     <tr class="border-2 border-black text-center">
@@ -37,25 +38,24 @@
         <td class="border-2 border-black">{{$employee['emp_gender']}}</td>
         <td class="border-2 border-black">{{$employee['emp_birthdate']}}</td>
         <td class="border-2 border-black">{{$employee['emp_role']}}</td>
-        <td class="border-2 border-black"><a href="/editemployee/{{$employee->id}}">
+        <td class="border-2 border-black"><a class="hover:text-laravel" href="/editemployee/{{$employee->id}}">
             <i class="fa-solid fa-pencil"></i> Edit
         </a></td>
         <td class="border-2 border-black"><button class="text-red-500">
             <form method="Post" action="/employee/{{$employee->id}}">
             @csrf
             @method('DELETE')
-            <button class="text-red-500"><i class="fa-solid fa-trash"></i> Delete</button>
+            <button class="text-red-500 hover:text-black"><i class="fa-solid fa-trash"></i> Delete</button>
             </form>
         </td>
     </tr>
     @endforeach
+    @endif
     </table>
-    
+    </div>
+    @if($employeelist)
     <div class="mt-1 p-4">
         {{$employeelist->links()}}
     </div>
-
-
-
-</section>
+    @endif
 </x-layout>

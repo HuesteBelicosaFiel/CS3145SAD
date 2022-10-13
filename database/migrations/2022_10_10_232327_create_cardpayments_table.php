@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('card_number');
             $table->string('card_type');
             $table->double('cardpayment_amount');
+            $table->string('date_today');
             $table->timestamps();
         });
     }
